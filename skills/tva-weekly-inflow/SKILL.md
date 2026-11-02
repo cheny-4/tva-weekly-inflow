@@ -7,6 +7,8 @@ description: Preprocess HEADWATER NetCDF maps and run either saved TVA weekly sh
 
 Locate the checkout using TVA_INFLOW_REPO or a directory containing pipeline.py and models.json. A separately installed skill needs that checkout for checkpoints, scalers and spatial data. Use its Python requirements and supported CLI; archived model-folder scripts are provenance, not instructions.
 
+`SKILL.md` is the skill entry point. Optional display settings are retained in [agents/interface.yaml](agents/interface.yaml) under a custom filename; tools that require a conventional metadata filename may ignore these settings. This does not change the model CLI or the skill instructions.
+
 ## Select the model first
 
 - `total_runoff`: surface runoff **plus baseflow**, static elevation, best epoch 19.
