@@ -20,5 +20,6 @@ export MIOPEN_USER_DB_PATH="/tmp/tva-weekly-${SLURM_JOB_ID}"
 export MIOPEN_CUSTOM_CACHE_DIR="$MIOPEN_USER_DB_PATH"
 export MPLCONFIGDIR="/tmp/tva-weekly-mpl-${SLURM_JOB_ID}"
 mkdir -p "$MIOPEN_USER_DB_PATH" "$MPLCONFIGDIR" outputs
+TVA_MODEL="${TVA_MODEL:-total_runoff}"
 srun -N1 -n1 -c7 --gpus-per-task=1 --gpu-bind=closest \
-  "$TVA_PYTHON" -u pipeline.py train --out "outputs/train_${SLURM_JOB_ID}"
+  "$TVA_PYTHON" -u pipeline.py train --model "$TVA_MODEL" --out "outputs/train_${TVA_MODEL}_${SLURM_JOB_ID}"

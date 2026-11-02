@@ -1,0 +1,25 @@
+{
+  "default_model": "total_runoff",
+  "models": {
+    "total_runoff": {
+      "artifact_root": "baseline",
+      "run": "runs/weekly13_lstm1_nonlinear_cosine_s42_5751784",
+      "runoff_definition": "surface_runoff_plus_baseflow",
+      "dynamic_names": ["precipitation_mm_week", "temperature_mean_c", "total_runoff_mm_week"],
+      "static_names": ["elevation_mean_m"],
+      "parameters": 72884,
+      "best_epoch": 19,
+      "bias_correction": false
+    },
+    "surface_runoff_static8": {
+      "artifact_root": "baseline_surface_runoff_static8",
+      "run": "runs/weekly13_lstm1_surface_static8_s42_5833188",
+      "runoff_definition": "surface_runoff_only",
+      "dynamic_names": ["precipitation_mm_week", "temperature_mean_c", "surface_runoff_mm_week"],
+      "static_names": ["elevation_mean_m", "soil_permeability_native", "soil_sand_percent", "soil_clay_percent", "depth_to_bedrock_native", "depth_to_water_table_native", "baseflow_index_percent", "impervious_percent_2019_riparian100m", "open_water_percent_2019"],
+      "parameters": 74932,
+      "best_epoch": 20,
+      "bias_correction": false
+    }
+  }
+}

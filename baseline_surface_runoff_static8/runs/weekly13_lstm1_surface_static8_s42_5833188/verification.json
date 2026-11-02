@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "source_files_unchanged": true,
+  "original_dynamic_elevation_targets_masks_splits_and_eligibility_unchanged": true,
+  "eight_static_features_and_their_scalers_added": true,
+  "static_attributes_independently_recomputed": true,
+  "landcover_vintage": 2019,
+  "history13_eligibility_unchanged": true,
+  "cosine_schedule_verified": true,
+  "epochs_completed": 50,
+  "early_stopping": false,
+  "selected_validation_minimum": 20,
+  "all_test_predictions_cpu_replayed": 15025,
+  "max_replay_difference_mm_day": 3.8499755845577965e-06,
+  "parameters": 74932,
+  "site_heads": 52,
+  "gnn_layers": 0,
+  "lstm_layers": 1,
+  "metrics_recomputed": true,
+  "png_count": 22,
+  "pdf_count": 22,
+  "csv_roundtrip_differences": {
+    "validation": {
+      "observed_max_abs_m3": 0.0,
+      "baseline_max_abs_m3": 2.9802322387695312e-08
+    },
+    "test": {
+      "observed_max_abs_m3": 0.0,
+      "baseline_max_abs_m3": 2.9802322387695312e-08
+    }
+  }
+}

@@ -1,47 +1,38 @@
-# Supported commands
+# Supported interface
 
-Run from the cloned repository. `python pipeline.py --help` lists the interface. If installed separately from the checkout, use `cd "$TVA_INFLOW_REPO"` first.
+From the repository checkout:
 
 ```bash
-python pipeline.py inspect
-python pipeline.py infer --inputs PATH.csv --metadata PATH.json --out outputs/NEW_NAME
-python pipeline.py replay --split test --out outputs/NEW_NAME
-python pipeline.py plot --predictions PATH.csv --sites ELF13 ELF39 --out outputs/NEW_NAME
+python pipeline.py inspect --model surface_runoff_static8
+python pipeline.py preprocess --model surface_runoff_static8 --config CONFIG.json --out outputs/NEW_PREP
+python pipeline.py infer --model surface_runoff_static8 --inputs outputs/NEW_PREP/weekly_inputs.csv --metadata outputs/NEW_PREP/forcing_metadata.json --out outputs/NEW_PREDICTIONS
+python pipeline.py replay --model surface_runoff_static8 --split test --out outputs/NEW_REPLAY
+python pipeline.py plot --model surface_runoff_static8 --predictions PAIRED.csv --sites ELF13 ELF39 --out outputs/NEW_FIGURES
 ```
 
-`replay` and `infer` default to CPU and the frozen best checkpoint. They optionally accept `--checkpoint PATH` and `--device cuda` when an allocation supports it. `inspect` verifies each exported baseline file's SHA-256. It does not require a GPU.
+Use `total_runoff` for the other checkpoint. Every command accepts --model; legacy default is total_runoff. Replay/infer default to CPU and the selected saved best checkpoint; optional --checkpoint and --device cuda are accepted when compatible. Inspect checks model-specific export checksums. Neither model includes bias correction.
 
-## Inference contract
+## Basin CSV contract
 
-CSV required columns, in physical units:
+Required columns:
 
-`basin_id,start,precipitation_mm_week,temperature_mean_c,total_runoff_mm_week`
+- Total: basin_id,start,precipitation_mm_week,temperature_mean_c,total_runoff_mm_week.
+- Surface: basin_id,start,precipitation_mm_week,temperature_mean_c,surface_runoff_mm_week.
 
-Each site needs at least 13 weekly rows, sorted internally. `start` is a Monday, and each row describes the following complete seven days. Duplicate site/date rows, unknown sites, or negative precipitation/runoff are rejected. Non-finite values and calendar gaps invalidate affected 13-week windows. No imputation occurs. The first 12 rows per site are context only.
+Rows represent complete Monday–Sunday weeks in physical units. Metadata declares calendar Monday-Sunday; precipitation_units mm/week; temperature_units degC; runoff_units mm/week; source_kind historical/forecast; and runoff_definition surface_runoff_plus_baseflow or surface_runoff_only as appropriate. Include model_id explicitly in new data; preprocessing does so automatically. Surface examples are examples/weekly_inputs_surface_static8.csv and examples/forcing_metadata_surface_static8.json. Original total examples retain their filenames.
 
-The JSON metadata must declare:
+Require 13 weekly rows per site, preserving target week plus 12 preceding weeks. Unknown site heads, duplicate/non-Monday dates, negative P/runoff and incompatible metadata are rejected. Calendar gaps/non-finite values invalidate windows without filling. The first 12 rows are context only. Stored elevation and, in the surface model, eight additional attributes are loaded in their frozen feature order and normalized once with the selected checkpoint's training scalers.
 
-```json
-{
-  "calendar": "Monday-Sunday",
-  "precipitation_units": "mm/week",
-  "temperature_units": "degC",
-  "runoff_units": "mm/week",
-  "runoff_definition": "surface_runoff_plus_baseflow",
-  "source_kind": "historical"
-}
-```
+Infer writes predictions.csv and provenance.json including model_id, checkpoint hash/epoch and bias_correction:false. Output is already mean daily-equivalent mm/day; m³/week = depth × target area_km2 × 7000. Do not inverse-standardize it again. Observed ELF is not an inference input.
 
-For actual forecast forcings use `source_kind: "forecast"` and record issue time and lead definitions as additional provenance. That label documents the source; it does not establish forecast accuracy or automatically verify that no future observations were used. If runoff is surface runoff only or its definition is unknown, resolve that mismatch before inference. Do not relabel it to pass validation.
+## Map inputs
 
-The stored static elevation and drainage area belong to each trained site's original boundary. New HEADWATER maps must be spatially aggregated to that same support. This package accepts basin CSVs and does not contain a raw NetCDF map adapter.
+Preprocess is implemented in headwater_preprocess.py. Read the checkout's docs/headwater_preprocessing.md for the explicit config. It supports rectilinear geographic/projected NetCDF grids, fractional area weighting on the packaged regions, interval-unit conversion and complete weekly aggregation. It saves sparse grid weights, coverage/QC tables, source hashes and ready-to-infer CSV/metadata. Actual HEADWATER maps still need their real variable/CRS/unit/time declarations checked; synthetic examples do not validate an unknown future schema or forecast skill.
 
-`infer` writes predictions.csv and provenance.json. Output depth is mean daily-equivalent mm/day; weekly m³ = depth × area_km² × 7000. It is already in physical target units, so do not apply another target inverse-standardization.
+Process forecast members/issues separately, provide target-week forcings, and supply sufficient historical context through history_csv/history_metadata if needed. Do not relabel source kinds or runoff semantics to bypass errors. Do not disaggregate misaligned weekly/monthly totals or insert future observed forcings. The supported raw-grid input is georeferenced rectilinear NetCDF, not every possible raster format.
 
-## Evaluation and plotting
+## Frozen evaluation
 
-`replay` writes predictions.csv, metrics_by_site.csv and summary.json. It uses `eligible AND split` exactly as saved and compares default-checkpoint validation/test results with the frozen predictions. Allow small CPU/ROCm numerical differences, not different masks or dates. Never improve agreement by dropping additional weeks.
+Replay uses eligible AND split exactly as saved:50,084 train,9,868 validation,15,025 test rows. Default validation/test replay checks identical keys/reference values and small CPU/ROCm numerical differences. It writes predictions, metrics and summary. Plot needs independently paired observed_volume_m3 and predicted_volume_m3; inference alone cannot produce accuracy metrics. Preserve missing calendar weeks in plots and complete-volume summaries.
 
-`plot` requires paired `observed_volume_m3` and `predicted_volume_m3` with basin_id and start. It writes an all-site NSE figure and individual hydrographs, preserving masked calendar gaps. Future inference outputs have no reference observations, so they cannot produce accuracy metrics without an independently matched reference.
-
-`--out` must be a new directory outside baseline. The pipeline exits with an error rather than replacing existing output.
+All output paths must be new and outside baseline/, baseline_surface_runoff_static8/ and spatial/. No command implicitly trains or submits jobs.

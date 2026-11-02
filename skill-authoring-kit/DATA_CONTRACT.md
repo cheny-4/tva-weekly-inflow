@@ -1,45 +1,40 @@
 # Data contract
 
-## Spatial support
+## Two model identities
 
-Inputs must describe the same ELF-matched drainage area as the stored site metadata. At a headwater this generally covers the full contributing watershed. At downstream local/residual targets, it may cover an incremental area. Source-region allocation/proxy groups have additional target-construction qualifications. `baseline/data/node_metadata.csv` records those classes and review flags. The package does not supply original TVA GIS or assert that provisional boundaries are validated.
+Use models.json and --model consistently:
 
-To connect future HEADWATER grids, intersect cell footprints with the matching drainage area and weight cell values by the area inside it. Use equal-area/geodesic area and fractional boundary cells. Recompute weights for a different grid. Do not take the total upstream watershed for every local ELF or sum grid depths as if they were basin-average depths. Raw-grid extraction remains a separate adapter task; the implemented interface begins with basin weekly CSVs.
+| Model | Dynamic feature order | Static feature order |
+|---|---|---|
+| total_runoff | precipitation_mm_week,temperature_mean_c,total_runoff_mm_week | elevation_mean_m |
+| surface_runoff_static8 | precipitation_mm_week,temperature_mean_c,surface_runoff_mm_week | elevation_mean_m,soil_permeability_native,soil_sand_percent,soil_clay_percent,depth_to_bedrock_native,depth_to_water_table_native,baseflow_index_percent,impervious_percent_2019_riparian100m,open_water_percent_2019 |
 
-## Features
+P/runoff are basin spatial mean weekly amounts in mm/week; T is basin mean weekly mean in°C, historically Daymet(Tmax+Tmin)/2. Runoff metadata must declare surface_runoff_plus_baseflow or surface_runoff_only respectively. Static values and scalers are stored per version and loaded automatically; no bias correction is used. Surface has eight **additional** statics plus elevation. Static BFI is not dynamic baseflow. Native permeability/depth units and 2019 land-cover/riparian definitions remain as documented in the static audit.
 
-The dynamic array is `(time=1816, sites=52, features=3)`, in this exact order:
+## Spatial support and map adapter
 
-1. `precipitation_mm_week`: weekly precipitation amount, basin spatial average, mm/week.
-2. `temperature_mean_c`: weekly mean temperature, basin spatial average, °C. Historical temperature came from Daymet (Tmax+Tmin)/2.
-3. `total_runoff_mm_week`: weekly NLDAS surface runoff + baseflow amount, basin spatial average, mm/week.
+spatial/forcing_regions.geojson contains 43 exact frozen regions; site_region_mapping.csv maps all 52 head IDs to them and retains target areas, construction classes and review flags. Their manifest checksums are verified by preprocessing. Headwaters generally use full contributing basins; local downstream targets use incremental support; source/proxy groups sometimes share forcings. These are provisional USGS reconstructions, not original validated TVA GIS. Do not replace source regions with total-upstream catchments or change target areas to match forcing-region area.
 
-Static input: `elevation_mean_m`, shape `(52,1)`, basin mean elevation in metres. The LSTM concatenates the normalized static elevation to every time step. Drainage area is for target normalization/volume conversion and is not an additional learned feature.
+pipeline.py preprocess implements rectilinear NetCDF ingestion, fractional polygon/cell intersection areas measured in EPSG:5070, finite-area coverage checks, unit conversions and complete Monday–Sunday aggregation. It preserves holes/edge fractions, saves reusable grid weights/fingerprints and emits ready-to-infer weekly CSV/metadata. Read ../docs/headwater_preprocessing.md for supported CRS, time intervals, dimensions, members/issues and limitations. An unknown actual HEADWATER layout is not automatically validated.
 
-For subweekly grids, integrate precipitation/runoff rates into amounts before summing. Average temperature over time. Use complete Monday–Sunday calendar weeks. For already-weekly maps, verify that amounts/means, weekly dates, units, and runoff definition match training. A weekly mean precipitation *rate* is not a weekly total amount until converted.
+Amounts are summed over complete weeks, interval-mean P/runoff rates are integrated, and interval-mean temperatures are duration-averaged. Inputs must have explicit time support, unique nonoverlapping intervals inside their Monday week, and a consistent UTC calendar. Monthly/misaligned weekly totals and cumulative-since-init fields need an upstream interface change rather than guessed disaggregation. Spatial coverage defaults are 0.99 and recorded. Insufficient finite area/time stays missing; no values are filled.
 
-## Identity and normalization
+## Identity, scaling and prediction
 
-Use the site order in `basin_ids` and `site_head_mapping.json`, ELF01–ELF52. Never reorder weights or assign a new location to an arbitrary head. Physical feature arrays enter normalization as float32, and the original train-only mean/std computations then return float32 normalized inputs. The saved checkpoint contains the scaler copy used for inference. Do not refit scalers on validation/test or new forecast data.
+Preserve ELF01–ELF52 order and original head indices from site_head_mapping.json and checkpoint basin_ids. New sites need model adaptation. Both frozen NPZs have 1816×52×3 dynamics; statics are 52×1 or52×9. Inputs enter as float32 physical values and the original training-only scaler computation returns normalized float32. Do not fit scalers from forecast/validation/test data.
 
-## Target and volume
+Each 13-week window includes the target week plus 12 preceding weeks. No observed ELF enters inference. Stored statics are concatenated at every step. Output is physical mean daily-equivalent ELF depth mm/day, not a standardized target. Weekly m³ = depth×stored target area_km2× 7000. Site training target std+.1 is used only in loss.
 
-ELF is the per-location reference quantity described by its target definition, not universally total upstream inflow. The trained output is mean daily-equivalent target depth in mm/day over a complete seven-day week. Weekly volume is:
+ELF is site-specific local/incremental/allocated reference flow, not universally total upstream reservoir inflow. Do not sum overlapping site volumes indiscriminately. Frozen output heads cannot represent arbitrary new sites.
 
-`predicted_volume_m3 = predicted_mean_mm_day * area_km2 * 7000`
+## Splits and masks
 
-Output is already in target physical units. The per-site target training standard deviation is used in the loss denominator (`std + 0.1`), not as an output inverse transform.
+Train1982–2004,validation2005–2009,test2010–October2016. Preserve eligible,target_valid_all7,all QC bits and inherited graph_history13_valid. Legacy graph naming does not imply a GNN. Use eligible AND split_code, retaining50,084/9,868/15,025 train/validation/test rows.52 sites train;51 have test scores. Invalid constant/small-value periods and incomplete weeks remain excluded. Gaps remain gaps in plots; volume scores require explicitly complete or matched valid periods.
 
-## Dates and masks
+For new inference, require known IDs, unique Monday rows and finite contiguous 13-week forcing windows. Reject incompatible declared units/definitions and negative P/runoff. Flag missing/non-finite windows without imputation. No reference target mask is required for inference, but no accuracy score is available without independent paired observations.
 
-The input window includes target week and 12 previous weeks. Splits: train1982–2004, validation2005–2009, test2010–October2016. Weeks crossing a split/year boundary or truncated archive edge may have split -1. Preserve `eligible`, `target_valid_all7`, historical window eligibility and QC bits as stored, including the inherited `graph_history13_valid` field name. That legacy field name does not mean this baseline uses a GNN.
+## Forecast context
 
-Use `eligible AND split_code` for frozen evaluation. Counts are 50,084/9,868/15,025 for train/validation/test. Never infer validity from a finite/positive target alone. The archive has 52 sites, but 51 scoreable test sites. Individual valid-week counts differ by site. Gaps stay gaps in plots and volume summaries.
+Forecast inputs require the target week's forecast fields as well as past context. Thirteen weeks is not forecast lead. Process each member/issue separately; record issue_time/member_id and preserve actual forecast lead definitions. Optional historical context must match the model contract and end before issue time, without overlapping forecast-map weeks or using future observations. Metadata cannot prove the truth of the supplied source labels.
 
-For new-input inference, no target mask or observed ELF is required. Require a complete, finite 13-week forcing window. Unknown IDs and inconsistent declared units/definitions fail validation. Missing weeks or input values flag the affected windows without gap filling.
-
-## Forecast interpretation
-
-Target-week forcings are inputs. A prospective forecast therefore needs target-week forecast precipitation, temperature and runoff. Thirteen weeks is history/context, not a guaranteed 13-week forecast horizon. Forecast issue/lead dates and member identities must be tracked by the upstream adapter. Changing `source_kind` in metadata does not prove that a product is a valid forecast.
-
-Historical reconstruction used observed/retrospective weather and NLDAS runoff. The saved score does not establish HEADWATER/GEFS forecast accuracy. In particular, surface runoff alone does not match the trained surface-plus-baseflow feature. Confirm the future product's runoff definition before coupling.
+Historical Daymet/NLDAS reconstruction scores do not establish HEADWATER/GEFS forecast skill or remove distribution differences. User-requested fixed2019 surface descriptors are post-period information in the retrospective test. Test data have already been examined in many experiments; no tuning, calibration or checkpoint selection may be fitted to their labels.

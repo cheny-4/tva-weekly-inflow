@@ -1,0 +1,170 @@
+{
+  "status": "completed",
+  "best_epoch": 20,
+  "epochs_run": 50,
+  "best_validation_loss": 0.13111338019371033,
+  "stop_reason": "maximum_epochs",
+  "training_validation_seconds": 30.84876740607433,
+  "summary": [
+    {
+      "scope": "all_scoreable_sites",
+      "split": "test",
+      "model": "lstm_surface_static8",
+      "locations": 51,
+      "weeks": 15025,
+      "median_nse": 0.7472752419234157,
+      "median_kge": 0.7917224697841021,
+      "median_absolute_pbias_percent": 10.722742368137283
+    },
+    {
+      "scope": "all_scoreable_sites",
+      "split": "test",
+      "model": "surface_runoff_baseline",
+      "locations": 51,
+      "weeks": 15025,
+      "median_nse": 0.7569858461546357,
+      "median_kge": 0.792442957074564,
+      "median_absolute_pbias_percent": 10.16471408220937
+    },
+    {
+      "scope": "all_scoreable_sites",
+      "split": "test",
+      "model": "total_runoff_baseline",
+      "locations": 51,
+      "weeks": 15025,
+      "median_nse": 0.8209257062192478,
+      "median_kge": 0.830906985711308,
+      "median_absolute_pbias_percent": 7.141298940729346
+    },
+    {
+      "scope": "all_scoreable_sites",
+      "split": "test",
+      "model": "training_climatology",
+      "locations": 51,
+      "weeks": 15025,
+      "median_nse": 0.19631644252098646,
+      "median_kge": 0.23676446829359044,
+      "median_absolute_pbias_percent": 9.748041700190168
+    },
+    {
+      "scope": "all_scoreable_sites",
+      "split": "validation",
+      "model": "lstm_surface_static8",
+      "locations": 51,
+      "weeks": 9868,
+      "median_nse": 0.6321861320765119,
+      "median_kge": 0.7116913427824911,
+      "median_absolute_pbias_percent": 19.325823816060982
+    },
+    {
+      "scope": "all_scoreable_sites",
+      "split": "validation",
+      "model": "surface_runoff_baseline",
+      "locations": 51,
+      "weeks": 9868,
+      "median_nse": 0.6641475514384803,
+      "median_kge": 0.7453922701366593,
+      "median_absolute_pbias_percent": 17.834874754323017
+    },
+    {
+      "scope": "all_scoreable_sites",
+      "split": "validation",
+      "model": "total_runoff_baseline",
+      "locations": 51,
+      "weeks": 9868,
+      "median_nse": 0.7676434001026653,
+      "median_kge": 0.7757350936452787,
+      "median_absolute_pbias_percent": 9.141042515395203
+    },
+    {
+      "scope": "all_scoreable_sites",
+      "split": "validation",
+      "model": "training_climatology",
+      "locations": 51,
+      "weeks": 9868,
+      "median_nse": -0.2075323572936114,
+      "median_kge": 0.063085402811623,
+      "median_absolute_pbias_percent": 43.30543751969442
+    },
+    {
+      "scope": "priority_headwater10",
+      "split": "test",
+      "model": "lstm_surface_static8",
+      "locations": 10,
+      "weeks": 3375,
+      "median_nse": 0.8034413423700285,
+      "median_kge": 0.8237526645096932,
+      "median_absolute_pbias_percent": 9.474677037130597
+    },
+    {
+      "scope": "priority_headwater10",
+      "split": "test",
+      "model": "surface_runoff_baseline",
+      "locations": 10,
+      "weeks": 3375,
+      "median_nse": 0.7970495985733776,
+      "median_kge": 0.817868773242318,
+      "median_absolute_pbias_percent": 7.4627709031341585
+    },
+    {
+      "scope": "priority_headwater10",
+      "split": "test",
+      "model": "total_runoff_baseline",
+      "locations": 10,
+      "weeks": 3375,
+      "median_nse": 0.8741981822262809,
+      "median_kge": 0.8887923960033592,
+      "median_absolute_pbias_percent": 6.294699092747875
+    },
+    {
+      "scope": "priority_headwater10",
+      "split": "test",
+      "model": "training_climatology",
+      "locations": 10,
+      "weeks": 3375,
+      "median_nse": 0.22958912334678877,
+      "median_kge": 0.2875877709925267,
+      "median_absolute_pbias_percent": 2.3401118960020506
+    },
+    {
+      "scope": "priority_headwater10",
+      "split": "validation",
+      "model": "lstm_surface_static8",
+      "locations": 10,
+      "weeks": 2297,
+      "median_nse": 0.7015669104087354,
+      "median_kge": 0.7838422301247377,
+      "median_absolute_pbias_percent": 13.388011952864764
+    },
+    {
+      "scope": "priority_headwater10",
+      "split": "validation",
+      "model": "surface_runoff_baseline",
+      "locations": 10,
+      "weeks": 2297,
+      "median_nse": 0.7156953507057927,
+      "median_kge": 0.8101290279974893,
+      "median_absolute_pbias_percent": 12.649127507937795
+    },
+    {
+      "scope": "priority_headwater10",
+      "split": "validation",
+      "model": "total_runoff_baseline",
+      "locations": 10,
+      "weeks": 2297,
+      "median_nse": 0.8527721285251921,
+      "median_kge": 0.8616782598194634,
+      "median_absolute_pbias_percent": 4.9413354055045655
+    },
+    {
+      "scope": "priority_headwater10",
+      "split": "validation",
+      "model": "training_climatology",
+      "locations": 10,
+      "weeks": 2297,
+      "median_nse": -0.08553954490364446,
+      "median_kge": 0.19273520124989874,
+      "median_absolute_pbias_percent": 24.937249449083943
+    }
+  ]
+}

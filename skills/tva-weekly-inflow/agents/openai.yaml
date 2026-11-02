@@ -1,4 +1,4 @@
 interface:
   display_name: "TVA Weekly Inflow"
-  short_description: "Run and evaluate the saved TVA weekly LSTM"
-  default_prompt: "Use $tva-weekly-inflow to run the saved model on weekly basin inputs and report its results."
+  short_description: "Preprocess maps and run either TVA weekly LSTM"
+  default_prompt: "Use $tva-weekly-inflow to select the matching runoff model, prepare my inputs, and predict weekly ELF without retraining or bias correction."

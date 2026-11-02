@@ -14,6 +14,15 @@ ROOT = Path(__file__).resolve().parent
 BASE = ROOT / 'baseline'
 RUN = BASE / 'runs/weekly13_lstm1_nonlinear_cosine_s42_5751784'
 FEATURES = ['precipitation_mm_week', 'temperature_mean_c', 'total_runoff_mm_week']
+REGISTRY = json.loads((ROOT / 'models.json').read_text())['models']
+
+def model_paths(model_id='total_runoff'):
+    if model_id not in REGISTRY:
+        raise ValueError('Unknown model: ' + model_id)
+    info = REGISTRY[model_id]
+    base = ROOT / info['artifact_root']
+    return base, base / info['run'], info
+
 SPLITS = {'train': 0, 'validation': 1, 'test': 2}
 
 
@@ -31,21 +40,24 @@ def sha256(path):
 
 def new_output(path):
     path = Path(path).resolve()
-    if path == BASE.resolve() or BASE.resolve() in path.parents:
-        raise ValueError('Choose an output directory outside the frozen baseline')
+    for frozen in [ROOT / v['artifact_root'] for v in REGISTRY.values()] + [ROOT / 'spatial']:
+        if path == frozen.resolve() or frozen.resolve() in path.parents:
+            raise ValueError('Choose an output directory outside the frozen baseline/model and spatial artifacts')
     path.mkdir(parents=True, exist_ok=False)
     return path
 
 
-def load_model_module():
-    spec = importlib.util.spec_from_file_location('tva_baseline_model', BASE / 'scripts/model.py')
+def load_model_module(model_id='total_runoff'):
+    base, _, _ = model_paths(model_id)
+    spec = importlib.util.spec_from_file_location('tva_baseline_model', base / 'scripts/model.py')
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
 
 
-def load_arrays():
-    with np.load(BASE / 'data/weekly_dataset.npz', allow_pickle=False) as z:
+def load_arrays(model_id='total_runoff'):
+    base, _, _ = model_paths(model_id)
+    with np.load(base / 'data/weekly_dataset.npz', allow_pickle=False) as z:
         return {key: z[key].copy() for key in z.files}
 
 
@@ -62,17 +74,18 @@ def normalize_static(values, scalers):
             np.asarray(scalers['static_std'])).astype(np.float32)
 
 
-def checkpoint_model(checkpoint=None, device='cpu'):
+def checkpoint_model(checkpoint=None, device='cpu', model_id='total_runoff'):
+    base, run, info = model_paths(model_id)
     import torch
     torch.set_num_threads(4)
-    checkpoint = Path(checkpoint) if checkpoint else RUN / 'best_model.pt'
+    checkpoint = Path(checkpoint) if checkpoint else run / 'best_model.pt'
     ck = torch.load(checkpoint, map_location=device, weights_only=True)
     config, sc = ck['run_config'], ck['scalers']
-    if config['history'] != 13 or config['layers'] != 1 or config['parameters'] != 72884:
+    if config['history'] != 13 or config['layers'] != 1 or config['parameters'] != info['parameters']:
         raise ValueError('Checkpoint does not match this baseline interface')
-    if sc['dynamic_names'] != FEATURES or sc['static_names'] != ['elevation_mean_m']:
+    if sc['dynamic_names'] != info['dynamic_names'] or sc['static_names'] != info['static_names']:
         raise ValueError('Checkpoint feature order does not match the interface')
-    model = load_model_module().SiteLSTM().to(device)
+    model = load_model_module(model_id).SiteLSTM().to(device)
     model.load_state_dict(ck['model_state'], strict=True)
     model.eval()
     return model, ck, config, sc
@@ -94,9 +107,10 @@ def predict_batches(model, x, static, site, device='cpu'):
     return result
 
 
-def replay(checkpoint=None, split='test', device='cpu'):
-    a = load_arrays()
-    model, ck, cfg, sc = checkpoint_model(checkpoint, device)
+def replay(checkpoint=None, split='test', device='cpu', model_id='total_runoff'):
+    base, run, info = model_paths(model_id)
+    a = load_arrays(model_id)
+    model, ck, cfg, sc = checkpoint_model(checkpoint, device, model_id)
     if a['basin_ids'].tolist() != cfg['basin_ids']:
         raise ValueError('Dataset and checkpoint site orders differ')
     t, b = np.where(a['eligible'] & (a['split'][:, None] == SPLITS[split]))
@@ -106,7 +120,7 @@ def replay(checkpoint=None, split='test', device='cpu'):
     if not np.isfinite(windows).all():
         raise ValueError('Non-finite input inside an eligible window')
     pred = predict_batches(model, windows, s[b], b, device)
-    attrs = pd.read_csv(BASE / 'data/static_attributes.csv').set_index('elf_id')
+    attrs = pd.read_csv(base / 'data/static_attributes.csv').set_index('elf_id')
     ids = a['basin_ids'][b]
     areas = attrs.loc[ids, 'area_km2'].to_numpy()
     frame = pd.DataFrame(dict(basin_id=ids, start=a['starts'][t], end=a['ends'][t], days=7,
@@ -135,20 +149,23 @@ def hydrologic_metrics(obs, pred):
     return result
 
 
-def score_frame(frame):
-    names = pd.read_csv(BASE / 'data/static_attributes.csv').set_index('elf_id')['name']
-    priority = read_json(BASE / 'data/site_head_mapping.json')['priority_headwaters']
+def score_frame(frame, model_id='total_runoff'):
+    base, _, _ = model_paths(model_id)
+    names = pd.read_csv(base / 'data/static_attributes.csv').set_index('elf_id')['name']
+    priority = read_json(base / 'data/site_head_mapping.json')['priority_headwaters']
     return pd.DataFrame([dict(basin_id=bid, name=names.loc[bid], priority_headwater=bid in priority,
         **hydrologic_metrics(g.observed_volume_m3, g.predicted_volume_m3))
         for bid, g in frame.groupby('basin_id')])
 
 
 def inspect_command(args):
-    manifest = read_json(BASE / 'export_manifest.json')
+    model_id = getattr(args, 'model', 'total_runoff')
+    base, run, info = model_paths(model_id)
+    manifest = read_json(base / 'export_manifest.json')
     for name, record in manifest['files'].items():
-        if sha256(BASE / name) != record['sha256']:
+        if sha256(base / name) != record['sha256']:
             raise ValueError('Frozen baseline checksum mismatch: ' + name)
-    a = load_arrays()
+    a = load_arrays(model_id)
     for split, code in SPLITS.items():
         mask = a['eligible'] & (a['split'][:, None] == code)
         if int(mask.sum()) != {'train': 50084, 'validation': 9868, 'test': 15025}[split]:
@@ -156,28 +173,29 @@ def inspect_command(args):
     if np.any(a['eligible'] & ~a['target_valid_all7']):
         raise ValueError('Eligible targets do not preserve the seven-day mask')
     print(json.dumps(dict(status='verified',frozen_files=len(manifest['files']),
-        source=manifest['source'],config=read_json(RUN / 'run_config.json'),
-        saved_results=read_json(RUN / 'results_summary.json')), indent=2))
+        model_id=model_id, bias_correction=False, source=manifest['source'],config=read_json(run / 'run_config.json'),
+        saved_results=read_json(run / 'results_summary.json')), indent=2))
 
 
 def replay_command(args):
+    base, run, info = model_paths(args.model)
     out = new_output(args.out)
-    frame, ck = replay(args.checkpoint, args.split, args.device)
+    frame, ck = replay(args.checkpoint, args.split, args.device, args.model)
     frame.to_csv(out / 'predictions.csv', index=False)
-    scores = score_frame(frame)
+    scores = score_frame(frame, args.model)
     scores.to_csv(out / 'metrics_by_site.csv', index=False)
-    summary = dict(split=args.split, selected_epoch=int(ck['epoch']), rows=len(frame),
+    summary = dict(model_id=args.model,bias_correction=False,split=args.split, selected_epoch=int(ck['epoch']), rows=len(frame),
         scoreable_sites=len(scores), median_nse=float(scores.nse.median()),
         headwater10_median_nse=float(scores.loc[scores.priority_headwater, 'nse'].median()),
         interpretation='Historical-input reconstruction, not operational forecast validation')
     if args.checkpoint is None and args.split in ['validation', 'test']:
-        saved = pd.read_csv(RUN / f'{args.split}_paired_weekly_predictions.csv')
+        saved = pd.read_csv(run / f'{args.split}_paired_weekly_predictions.csv')
         paired = frame.merge(saved, on=['basin_id','start','end','days'], how='outer',
             validate='one_to_one', suffixes=('', '_saved'), indicator=True)
         if not (paired['_merge'] == 'both').all():
             raise ValueError('Replay rows differ from saved eligibility')
         saved_depth = paired.predicted_volume_m3_saved / (
-            pd.read_csv(BASE / 'data/static_attributes.csv').set_index('elf_id')
+            pd.read_csv(base / 'data/static_attributes.csv').set_index('elf_id')
             .loc[paired.basin_id, 'area_km2'].to_numpy() * 7000)
         diff = np.abs(paired.predicted_mean_mm_day - saved_depth)
         if diff.max() > 5e-5:
@@ -189,40 +207,45 @@ def replay_command(args):
     print(json.dumps(summary, indent=2))
 
 
-def validate_metadata(metadata):
+def validate_metadata(metadata, model_id='total_runoff'):
+    _, _, info = model_paths(model_id)
     expected = dict(calendar='Monday-Sunday', precipitation_units='mm/week',
-        temperature_units='degC', runoff_units='mm/week', runoff_definition='surface_runoff_plus_baseflow')
+        temperature_units='degC', runoff_units='mm/week', runoff_definition=info['runoff_definition'])
     for key, value in expected.items():
         if metadata.get(key) != value:
             raise ValueError(f'Forcing metadata {key!r} must equal {value!r}')
+    if metadata.get('model_id', model_id) != model_id:
+        raise ValueError('Forcing metadata model_id does not match selected model')
     if metadata.get('source_kind') not in ['historical', 'forecast']:
         raise ValueError('Specify source_kind as historical or forecast')
 
 
-def infer_frame(frame, metadata, checkpoint=None, device='cpu'):
-    validate_metadata(metadata)
-    required = ['basin_id', 'start', *FEATURES]
+def infer_frame(frame, metadata, checkpoint=None, device='cpu', model_id='total_runoff'):
+    base, run, info = model_paths(model_id)
+    features = info['dynamic_names']
+    validate_metadata(metadata, model_id)
+    required = ['basin_id', 'start', *features]
     if any(key not in frame for key in required):
         raise ValueError('Input columns must include: ' + ', '.join(required))
     frame = frame.copy()
     frame['start'] = pd.to_datetime(frame.start, format='%Y-%m-%d', errors='raise')
     if (frame.start.dt.day_of_week != 0).any() or frame.duplicated(['basin_id', 'start']).any():
         raise ValueError('Require unique Monday-start rows for each site')
-    for name in FEATURES:
+    for name in features:
         frame[name] = pd.to_numeric(frame[name], errors='raise')
-    if (frame[[FEATURES[0], FEATURES[2]]] < 0).any().any():
+    if (frame[[features[0], features[2]]] < 0).any().any():
         raise ValueError('Precipitation and runoff totals must be non-negative')
-    model, ck, cfg, sc = checkpoint_model(checkpoint, device)
+    model, ck, cfg, sc = checkpoint_model(checkpoint, device, model_id)
     ids = cfg['basin_ids']
     if set(frame.basin_id) - set(ids):
         raise ValueError('No trained output heads for sites: ' + str(set(frame.basin_id) - set(ids)))
-    attrs = pd.read_csv(BASE / 'data/static_attributes.csv').set_index('elf_id')
+    attrs = pd.read_csv(base / 'data/static_attributes.csv').set_index('elf_id')
     rows, windows, static, sites, positions = [], [], [], [], []
     for bid, group in frame.sort_values(['basin_id', 'start']).groupby('basin_id'):
         if len(group) < 13:
             raise ValueError(f'{bid} needs at least 13 weekly rows')
         dates = group.start.to_numpy(dtype='datetime64[D]')
-        values = normalize(group[FEATURES].to_numpy(), sc)
+        values = normalize(group[features].to_numpy(), sc)
         for i in range(12, len(group)):
             dates13 = dates[i-12:i+1]
             valid = (np.diff(dates13) == np.timedelta64(7, 'D')).all() and np.isfinite(values[i-12:i+1]).all()
@@ -232,7 +255,7 @@ def infer_frame(frame, metadata, checkpoint=None, device='cpu'):
             rows.append(row)
             if valid:
                 positions.append(len(rows)-1);windows.append(values[i-12:i+1])
-                static.append(normalize_static([attrs.loc[bid,'elevation_mean_m']], sc))
+                static.append(normalize_static(attrs.loc[bid, info['static_names']].to_numpy(dtype=float), sc))
                 sites.append(ids.index(bid))
     if windows:
         pred = predict_batches(model,np.asarray(windows),np.asarray(static),np.asarray(sites),device)
@@ -243,11 +266,12 @@ def infer_frame(frame, metadata, checkpoint=None, device='cpu'):
 
 
 def infer_command(args):
-    frame, ck = infer_frame(pd.read_csv(args.inputs), read_json(args.metadata), args.checkpoint, args.device)
+    base, run, info = model_paths(args.model)
+    frame, ck = infer_frame(pd.read_csv(args.inputs), read_json(args.metadata), args.checkpoint, args.device, args.model)
     out = new_output(args.out)
     frame.to_csv(out / 'predictions.csv', index=False)
-    write_json(out / 'provenance.json',dict(input_sha256=sha256(args.inputs),metadata=read_json(args.metadata),
-        checkpoint_sha256=sha256(args.checkpoint or RUN/'best_model.pt'),selected_epoch=int(ck['epoch']),
+    write_json(out / 'provenance.json',dict(model_id=args.model,bias_correction=False,input_sha256=sha256(args.inputs),metadata=read_json(args.metadata),
+        checkpoint_sha256=sha256(args.checkpoint or run/'best_model.pt'),selected_epoch=int(ck['epoch']),
         output_rows=len(frame),invalid_windows=int((frame.status!='predicted').sum()),
         history='Target week plus 12 preceding weeks',
         limitation='Requires matching runoff definition and mapped basin inputs. HEADWATER forecast skill is unvalidated.'))
@@ -255,6 +279,7 @@ def infer_command(args):
 
 
 def plot_command(args):
+    base, run, info = model_paths(args.model)
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -263,8 +288,8 @@ def plot_command(args):
     if any(k not in frame for k in required) or frame.duplicated(['basin_id','start']).any():
         raise ValueError('Plot requires unique paired predictions: '+', '.join(required))
     out = new_output(args.out)
-    names = pd.read_csv(BASE / 'data/static_attributes.csv').set_index('elf_id')['name']
-    scores = score_frame(frame)
+    names = pd.read_csv(base / 'data/static_attributes.csv').set_index('elf_id')['name']
+    scores = score_frame(frame, args.model)
     scores.to_csv(out / 'metrics_by_site.csv',index=False)
     fig, ax = plt.subplots(figsize=(14,5))
     ax.bar(scores.basin_id,scores.nse,color='#087E8B')
@@ -286,14 +311,15 @@ def plot_command(args):
 
 def train_command(args):
     """Portable reproduction of the original 50-epoch loop; no automatic submission."""
+    base, run, info = model_paths(args.model)
     import torch
     if not torch.cuda.is_available() or not __import__('os').environ.get('SLURM_JOB_ID'):
         raise RuntimeError('Training requires an allocated Frontier Slurm GPU job')
     inspect_command(args)
-    out=new_output(args.out);a=load_arrays();cfg=read_json(RUN/'run_config.json')
-    sc=read_json(BASE/'data/train_only_scalers.json');torch.set_num_threads(4)
+    out=new_output(args.out);a=load_arrays(args.model);cfg=read_json(run/'run_config.json')
+    sc=read_json(base/'data/train_only_scalers.json');torch.set_num_threads(4)
     random.seed(42);np.random.seed(42);torch.manual_seed(42);torch.cuda.manual_seed_all(42)
-    module=load_model_module();model=module.SiteLSTM().cuda()
+    module=load_model_module(args.model);model=module.SiteLSTM().cuda()
     x=normalize(a['dynamic'],sc);s=normalize_static(a['static'],sc)
     scales=np.asarray(sc['target_train_std_by_basin'],np.float32)+.1
     tensors=tuple(torch.as_tensor(v,dtype=torch.float32,device='cuda')
@@ -305,7 +331,7 @@ def train_command(args):
     scheduler=torch.optim.lr_scheduler.CosineAnnealingLR(opt,T_max=50,eta_min=.00001)
     rng=np.random.default_rng(42);best=float('inf');records=[]
     config={**cfg,'source_checkpoint_used_for_initialization':False,
-        'packaged_data_sha256':sha256(BASE/'data/weekly_dataset.npz'),
+        'packaged_data_sha256':sha256(base/'data/weekly_dataset.npz'),
         'device':torch.cuda.get_device_name(),'torch':str(torch.__version__),'python':sys.version,
         'slurm_job_id':__import__('os').environ['SLURM_JOB_ID'],
         'pipeline_sha256':sha256(Path(__file__))}
@@ -335,6 +361,11 @@ def train_command(args):
     write_json(out/'completion.json',dict(status='completed',epochs=50,early_stopping=False,best_validation_loss=best))
 
 
+def preprocess_command(args):
+    from headwater_preprocess import preprocess
+    preprocess(args.config, args.out, args.model)
+
+
 def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
     sub=parser.add_subparsers(dest='command',required=True)
@@ -351,6 +382,11 @@ def main(argv=None):
     p.add_argument('--sites',nargs='+');p.set_defaults(func=plot_command)
     p=sub.add_parser('train',help='Explicit 50-epoch reproduction inside a Slurm GPU job')
     p.add_argument('--out',type=Path,required=True);p.set_defaults(func=train_command)
+    p=sub.add_parser('preprocess',help='Convert HEADWATER NetCDF maps to physical-unit weekly basin forcings')
+    p.add_argument('--config',type=Path,required=True);p.add_argument('--out',type=Path,required=True)
+    p.set_defaults(func=preprocess_command)
+    for command_parser in sub.choices.values():
+        command_parser.add_argument('--model',choices=list(REGISTRY),default='total_runoff',help='Explicit checkpoint/input contract; legacy default total_runoff')
     args=parser.parse_args(argv)
     try:args.func(args)
     except (ValueError,RuntimeError,FileExistsError) as error:parser.exit(2,str(error)+'\n')

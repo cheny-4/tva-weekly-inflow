@@ -1,0 +1,117 @@
+{
+  "status": "passed",
+  "date": "2026-11-02",
+  "trained_while_packaging": false,
+  "bias_correction": false,
+  "models": {
+    "total": {
+      "test": {
+        "model_id": "total_runoff",
+        "bias_correction": false,
+        "split": "test",
+        "selected_epoch": 19,
+        "rows": 15025,
+        "scoreable_sites": 51,
+        "median_nse": 0.8209256984400259,
+        "headwater10_median_nse": 0.8741981817701836,
+        "interpretation": "Historical-input reconstruction, not operational forecast validation",
+        "max_saved_replay_difference_mm_day": 1.9073486363652137e-06
+      },
+      "validation": {
+        "model_id": "total_runoff",
+        "bias_correction": false,
+        "split": "validation",
+        "selected_epoch": 19,
+        "rows": 9868,
+        "scoreable_sites": 51,
+        "median_nse": 0.7676433960147186,
+        "headwater10_median_nse": 0.8527721227046694,
+        "interpretation": "Historical-input reconstruction, not operational forecast validation",
+        "max_saved_replay_difference_mm_day": 1.907348634588857e-06
+      }
+    },
+    "surface": {
+      "test": {
+        "model_id": "surface_runoff_static8",
+        "bias_correction": false,
+        "split": "test",
+        "selected_epoch": 20,
+        "rows": 15025,
+        "scoreable_sites": 51,
+        "median_nse": 0.7472752317697955,
+        "headwater10_median_nse": 0.80344134569935,
+        "interpretation": "Historical-input reconstruction, not operational forecast validation",
+        "max_saved_replay_difference_mm_day": 2.86102294921875e-06
+      },
+      "validation": {
+        "model_id": "surface_runoff_static8",
+        "bias_correction": false,
+        "split": "validation",
+        "selected_epoch": 20,
+        "rows": 9868,
+        "scoreable_sites": 51,
+        "median_nse": 0.6321861394070413,
+        "headwater10_median_nse": 0.7015669171428265,
+        "interpretation": "Historical-input reconstruction, not operational forecast validation",
+        "max_saved_replay_difference_mm_day": 1.9073486328125e-06
+      }
+    }
+  },
+  "synthetic_map_end_to_end": {
+    "total": {
+      "weekly_forcing_rows": 832,
+      "sites": 52,
+      "regions": 43,
+      "prediction_rows": 208,
+      "invalid_windows": 0,
+      "bias_correction": false
+    },
+    "surface": {
+      "weekly_forcing_rows": 832,
+      "sites": 52,
+      "regions": 43,
+      "prediction_rows": 208,
+      "invalid_windows": 0,
+      "bias_correction": false
+    }
+  },
+  "unittest": {
+    "passed": 23,
+    "failed": 0
+  },
+  "skill_validation": "passed",
+  "checked_cases": [
+    "fractional cells unequal area",
+    "projected/geographic coordinates",
+    "unit and rate integration",
+    "CF/explicit time bounds",
+    "missing area and time",
+    "duplicate intervals",
+    "forecast issue/member dimensions",
+    "historical context and future-data rejection",
+    "cross-model metadata/checkpoint rejection",
+    "exact original masks and split counts"
+  ],
+  "original_baseline_snapshot_unchanged": true,
+  "surface_export_frozen_files": 55,
+  "source_checksums_verified": true,
+  "actual_HEADWATER_files_validated": false,
+  "limitations": "Synthetic map validation is an interface check; future HEADWATER file layout, runoff meaning, units, calendar and forecast skill require real-product verification. Historical evaluation uses fixed2019 descriptors and repeatedly inspected test data.",
+  "environment": {
+    "numpy": "2.5.4",
+    "pandas": "3.1.0",
+    "torch": "2.10.0",
+    "xarray": "2026.9.0",
+    "shapely": "2.2.0",
+    "pyproj": "3.8.0",
+    "scipy": "1.18.1"
+  },
+  "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+  "platform": "macOS-26.7.1-arm64-arm-64bit",
+  "code_sha256": {
+    "pipeline.py": "2e1cbcac0fd6a77fca838ce1b0fd6fd58609b37d35c7181abdf50275f8690329",
+    "headwater_preprocess.py": "dd7a34f58c9bf3099a030c8f4f9f16c6a911bb81c9937027cf46e5b7c9613f1d",
+    "models.json": "7243e27e44f8340751aa5ee44999a8f1ecaf01a1be6f3a0888c3375c5432c606",
+    "examples/make_headwater_demo.py": "0ae036f45f5e279d37465f75c481e9c1b4567148bbad95a96b9303d834e350d2"
+  }
+}

@@ -1,0 +1,157 @@
+split,basin_id,name,valid_weeks,priority_headwater
+train,ELF01,Douglas,1118,True
+train,ELF02,Sevierville,1118,False
+train,ELF03,South Holston,1113,True
+train,ELF04,Watauga,1116,True
+train,ELF05,Elizabethton,1118,False
+train,ELF06,Boone,1039,False
+train,ELF07,Kingsport,1039,False
+train,ELF08,Cherokee,1086,False
+train,ELF09,Maryville,1118,False
+train,ELF10,Fontana,1118,True
+train,ELF11,Chilhowee,384,False
+train,ELF12,Tellico,918,False
+train,ELF13,Norris,1118,True
+train,ELF14,Clinton,975,False
+train,ELF15,Melton Hill,975,False
+train,ELF16,Oakdale,1118,False
+train,ELF17,Chatuge,1117,True
+train,ELF18,Nottely,1118,True
+train,ELF19,Hiwassee,1118,False
+train,ELF20,Apalachia,1118,False
+train,ELF21,Blue Ridge,1115,True
+train,ELF22,Copperhill,1118,False
+train,ELF23,Ocoee No. 1,1082,False
+train,ELF24,Charleston,948,False
+train,ELF25,South Chickamauga Creek,1118,False
+train,ELF26,Whitwell,1118,False
+train,ELF27,Woodville,1118,False
+train,ELF28,Chase,1118,False
+train,ELF29,Tims Ford,1104,True
+train,ELF30,Fayetteville,1100,False
+train,ELF31,Prospect,1029,False
+train,ELF32,Iron City,1118,False
+train,ELF33,Upper Bear Creek,977,False
+train,ELF34,Bear Creek,1096,False
+train,ELF35,Little Bear Creek,951,False
+train,ELF36,Cedar Creek,951,False
+train,ELF37,Bishop,384,False
+train,ELF38,Lobelville,1118,False
+train,ELF39,Normandy,1118,True
+train,ELF40,Shelbyville,1089,False
+train,ELF41,Hurricane Mills,1118,False
+train,ELF42,Knoxville,918,False
+train,ELF43,Fort Loudoun,918,False
+train,ELF44,Watts Bar,485,False
+train,ELF45,Chickamauga,979,False
+train,ELF46,Nickajack,256,False
+train,ELF47,Guntersville,1013,False
+train,ELF48,Decatur,777,False
+train,ELF49,Wheeler,754,False
+train,ELF50,Wilson,386,False
+train,ELF51,Pickwick,384,False
+train,ELF52,Savannah,384,False
+validation,ELF01,Douglas,233,True
+validation,ELF02,Sevierville,233,False
+validation,ELF03,South Holston,231,True
+validation,ELF04,Watauga,225,True
+validation,ELF05,Elizabethton,233,False
+validation,ELF06,Boone,221,False
+validation,ELF07,Kingsport,221,False
+validation,ELF08,Cherokee,209,False
+validation,ELF09,Maryville,233,False
+validation,ELF10,Fontana,233,True
+validation,ELF11,Chilhowee,101,False
+validation,ELF12,Tellico,154,False
+validation,ELF13,Norris,233,True
+validation,ELF14,Clinton,199,False
+validation,ELF15,Melton Hill,199,False
+validation,ELF16,Oakdale,233,False
+validation,ELF17,Chatuge,230,True
+validation,ELF18,Nottely,230,True
+validation,ELF19,Hiwassee,233,False
+validation,ELF20,Apalachia,233,False
+validation,ELF21,Blue Ridge,233,True
+validation,ELF22,Copperhill,216,False
+validation,ELF23,Ocoee No. 1,229,False
+validation,ELF24,Charleston,220,False
+validation,ELF25,South Chickamauga Creek,233,False
+validation,ELF26,Whitwell,233,False
+validation,ELF27,Woodville,233,False
+validation,ELF28,Chase,233,False
+validation,ELF29,Tims Ford,216,True
+validation,ELF30,Fayetteville,177,False
+validation,ELF31,Prospect,216,False
+validation,ELF32,Iron City,233,False
+validation,ELF33,Upper Bear Creek,190,False
+validation,ELF34,Bear Creek,163,False
+validation,ELF35,Little Bear Creek,139,False
+validation,ELF36,Cedar Creek,161,False
+validation,ELF37,Bishop,91,False
+validation,ELF38,Lobelville,233,False
+validation,ELF39,Normandy,233,True
+validation,ELF40,Shelbyville,191,False
+validation,ELF41,Hurricane Mills,233,False
+validation,ELF42,Knoxville,154,False
+validation,ELF43,Fort Loudoun,154,False
+validation,ELF44,Watts Bar,86,False
+validation,ELF45,Chickamauga,212,False
+validation,ELF46,Nickajack,0,False
+validation,ELF47,Guntersville,212,False
+validation,ELF48,Decatur,77,False
+validation,ELF49,Wheeler,77,False
+validation,ELF50,Wilson,91,False
+validation,ELF51,Pickwick,91,False
+validation,ELF52,Savannah,91,False
+test,ELF01,Douglas,340,True
+test,ELF02,Sevierville,340,False
+test,ELF03,South Holston,337,True
+test,ELF04,Watauga,332,True
+test,ELF05,Elizabethton,340,False
+test,ELF06,Boone,226,False
+test,ELF07,Kingsport,226,False
+test,ELF08,Cherokee,337,False
+test,ELF09,Maryville,340,False
+test,ELF10,Fontana,340,True
+test,ELF11,Chilhowee,210,False
+test,ELF12,Tellico,192,False
+test,ELF13,Norris,340,True
+test,ELF14,Clinton,304,False
+test,ELF15,Melton Hill,304,False
+test,ELF16,Oakdale,340,False
+test,ELF17,Chatuge,338,True
+test,ELF18,Nottely,340,True
+test,ELF19,Hiwassee,340,False
+test,ELF20,Apalachia,340,False
+test,ELF21,Blue Ridge,340,True
+test,ELF22,Copperhill,340,False
+test,ELF23,Ocoee No. 1,340,False
+test,ELF24,Charleston,302,False
+test,ELF25,South Chickamauga Creek,340,False
+test,ELF26,Whitwell,340,False
+test,ELF27,Woodville,340,False
+test,ELF28,Chase,340,False
+test,ELF29,Tims Ford,330,True
+test,ELF30,Fayetteville,314,False
+test,ELF31,Prospect,324,False
+test,ELF32,Iron City,340,False
+test,ELF33,Upper Bear Creek,311,False
+test,ELF34,Bear Creek,238,False
+test,ELF35,Little Bear Creek,237,False
+test,ELF36,Cedar Creek,296,False
+test,ELF37,Bishop,159,False
+test,ELF38,Lobelville,340,False
+test,ELF39,Normandy,338,True
+test,ELF40,Shelbyville,337,False
+test,ELF41,Hurricane Mills,340,False
+test,ELF42,Knoxville,192,False
+test,ELF43,Fort Loudoun,192,False
+test,ELF44,Watts Bar,204,False
+test,ELF45,Chickamauga,306,False
+test,ELF46,Nickajack,0,False
+test,ELF47,Guntersville,272,False
+test,ELF48,Decatur,301,False
+test,ELF49,Wheeler,289,False
+test,ELF50,Wilson,159,False
+test,ELF51,Pickwick,159,False
+test,ELF52,Savannah,159,False

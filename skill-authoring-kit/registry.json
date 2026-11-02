@@ -4,13 +4,14 @@
     "pipeline.py"
   ],
   "repository_root_required": true,
-  "artifact_root": "baseline",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "capabilities": [
     {
       "name": "inspect",
       "argv": [
-        "inspect"
+        "inspect",
+        "--model",
+        "{total_runoff_or_surface_runoff_static8}"
       ],
       "side_effect": "read_only",
       "requires_training_request": false,
@@ -18,9 +19,34 @@
       "output_files": []
     },
     {
+      "name": "preprocess",
+      "argv": [
+        "preprocess",
+        "--model",
+        "{model_id}",
+        "--config",
+        "{map_configuration_json}",
+        "--out",
+        "{new_output_directory}"
+      ],
+      "side_effect": "write_new_basin_forcings_and_grid_weights",
+      "requires_training_request": false,
+      "requires_slurm_gpu": false,
+      "output_files": [
+        "weekly_inputs.csv",
+        "forcing_metadata.json",
+        "weekly_quality_by_region.csv",
+        "preprocessing_audit.json",
+        "weights/*.npz",
+        "weights/*.json"
+      ]
+    },
+    {
       "name": "infer",
       "argv": [
         "infer",
+        "--model",
+        "{total_runoff_or_surface_runoff_static8}",
         "--inputs",
         "{inputs_csv}",
         "--metadata",
@@ -40,6 +66,8 @@
       "name": "replay",
       "argv": [
         "replay",
+        "--model",
+        "{total_runoff_or_surface_runoff_static8}",
         "--split",
         "{validation_or_test}",
         "--out",
@@ -58,6 +86,8 @@
       "name": "plot",
       "argv": [
         "plot",
+        "--model",
+        "{total_runoff_or_surface_runoff_static8}",
         "--predictions",
         "{paired_predictions_csv}",
         "--out",
@@ -76,6 +106,8 @@
       "name": "train",
       "argv": [
         "train",
+        "--model",
+        "{total_runoff_or_surface_runoff_static8}",
         "--out",
         "{new_output_directory}"
       ],
@@ -90,5 +122,12 @@
         "completion.json"
       ]
     }
-  ]
+  ],
+  "artifact_roots": {
+    "total_runoff": "baseline",
+    "surface_runoff_static8": "baseline_surface_runoff_static8"
+  },
+  "legacy_default_model": "total_runoff",
+  "model_registry": "models.json",
+  "bias_correction": false
 }

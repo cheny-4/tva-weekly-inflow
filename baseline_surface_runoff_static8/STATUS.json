@@ -1,0 +1,10 @@
+{
+  "status": "completed",
+  "run": "/lustre/orion/lrn105/proj-shared/yangc/tva_elf_headwater_final/lstm_1layer_52site_nonlinear_heads_weekly_surface_runoff_static8/runs/weekly13_lstm1_surface_static8_s42_5833188",
+  "job_id": "5833188",
+  "best_epoch": 20,
+  "layers": 1,
+  "history": 13,
+  "early_stopping": false,
+  "epochs_run": 50
+}

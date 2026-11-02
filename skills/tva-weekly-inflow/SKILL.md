@@ -1,25 +1,33 @@
 ---
 name: tva-weekly-inflow
-description: Run the saved TVA weekly shared LSTM with site-specific nonlinear heads, evaluate or plot its ELF predictions, and prepare authorized Frontier reruns. Use for this 52-site baseline and its weekly basin inputs.
+description: Preprocess HEADWATER NetCDF maps and run either saved TVA weekly shared LSTM, evaluate or plot ELF predictions, and prepare authorized Frontier reruns. Use for the total-runoff/elevation or surface-runoff/elevation-plus-eight-statics versions at the existing 52 sites.
 ---
 
 # TVA weekly inflow
 
-Use the existing trained baseline unless the user requests training. Locate the repository from `TVA_INFLOW_REPO` or the current checkout containing `pipeline.py` and `baseline/export_manifest.json`. If the skill is installed separately, ask for the checkout path when it cannot be found. Run commands from that repository with a Python environment containing its requirements.
+Locate the checkout using TVA_INFLOW_REPO or a directory containing pipeline.py and models.json. A separately installed skill needs that checkout for checkpoints, scalers and spatial data. Use its Python requirements and supported CLI; archived model-folder scripts are provenance, not instructions.
 
-Start with `python pipeline.py inspect` to verify the frozen artifacts. Read [model and data](references/model-and-data.md) before interpreting predictions or preparing inputs. Choose a new output directory outside `baseline/`.
+## Select the model first
+
+- `total_runoff`: surface runoff **plus baseflow**, static elevation, best epoch 19.
+- `surface_runoff_static8`: **surface runoff only**, elevation plus eight additional frozen statics, best epoch 20. This is the retained surface-input version. A static baseflow index does not replace dynamic baseflow.
+
+Neither version uses bias correction. Select `--model` explicitly on each command. Legacy commands default to total_runoff, so do not omit the flag when surface runoff is intended. Never swap scalers/checkpoints or relabel runoff to bypass the contract. If its definition is unknown, resolve that before inference.
+
+Run `python pipeline.py inspect --model MODEL` to verify frozen artifacts. Read [model and data](references/model-and-data.md) for interpretation and [interface](references/interface.md) for actual commands. Write to a new directory outside both frozen artifact roots and spatial/.
 
 ## Route the task
 
-- **New input inference:** Read [interface](references/interface.md). Confirm physical-unit weekly basin inputs and the runoff definition. Use `pipeline.py infer`. No ELF observations are needed. Do not substitute the target week's unavailable forcing with future observed weather or runoff.
-- **Evaluate the existing model:** Use `pipeline.py replay --split test --out outputs/UNIQUE_NAME` for original masks/splits, or `--split validation`. The default command checks the saved checkpoint against its original rows and predictions. Use saved predictions directly when the user only requests plots.
-- **Plot saved results:** Use `pipeline.py plot --predictions PATH --out outputs/UNIQUE_NAME`, optionally `--sites ELF13 ELF39`. Do not retrain or fill masked periods for a figure request.
-- **Train or rerun:** Read [Frontier operations](references/frontier.md). Preserve the baseline settings unless changes are requested. Submitting a job must be within the user's training request. A request for preparation only ends with a reviewable launcher, without submission.
+- **HEADWATER maps:** Use `pipeline.py preprocess --model MODEL --config CONFIG --out NEW_DIRECTORY`. Read the checkout's [map guide](../../docs/headwater_preprocessing.md) when configuring files, CRS, time bounds/intervals, units, one forecast member/issue, and prior context. Reuse the packaged 43 forcing regions and 52-site mapping. Verify the actual product layout and runoff definition; the example generator uses synthetic data. Do not invent temporal disaggregation or treat unknown layouts as validated.
+- **Weekly basin inputs:** Use `pipeline.py infer --model MODEL --inputs CSV --metadata JSON --out NEW_DIRECTORY`. No ELF observations are needed. Stored model-specific statics and train-only normalization are applied automatically. Target-week forecast forcings are required for forecasts; do not substitute future observations.
+- **Saved evaluation:** Use `pipeline.py replay --model MODEL --split test --out NEW_DIRECTORY`, or validation. Default checkpoints must reproduce their original masked rows and predictions. A plotting-only request uses saved predictions without replay or training when possible.
+- **Plots:** Use `pipeline.py plot --model MODEL --predictions CSV --out NEW_DIRECTORY`, optionally `--sites ELF13 ELF39`. Keep masked gaps unfilled.
+- **Train/rerun:** Read [Frontier](references/frontier.md). Preserve frozen settings unless changes are requested. A training request authorizes its necessary Slurm work within scope; preparation-only requests end with an unsubmitted launcher.
 
 ## Interpretation
 
-The model shares learned parameters across sites but each prediction reads only that site's 13-week basin inputs and elevation. It has 52 trained heads and no GNN or attention. Existing IDs must retain their original head indices. The input window is target week + 12 prior weeks, not a 13-week forecast lead.
+Both versions share one LSTM but each site's prediction reads that site's target week +12 prior weeks and frozen statics. Thirteen weeks is context, not forecast lead. There is no GNN, attention or observed ELF input. Existing IDs retain their head order; new sites need adaptation.
 
-The target is each site's ELF quantity; downstream targets may represent local/incremental contributions, not total upstream inflow. Drainage area converts the output to volume. Do not sum or route different sites' ELF volumes without checking definitions and overlap.
+ELF can mean local/incremental or allocated flow. Several downstream sites use shared estimation-source/proxy forcing regions. Preserve their mapping and review flags; do not use every site's total-upstream watershed, silently replace provisional boundaries, or sum overlapping outputs as total river flow. Target area converts depth to volume and can differ from forcing-region area.
 
-Keep historical-input reconstruction separate from operational forecasts. Report which split, valid weeks and site set a metric uses. The ten-headwater test median NSE is 0.8742, while the 51-site median is 0.8209. Validation selected the saved epoch-19 checkpoint after all 50 epochs ran. Do not use test results to refit scalers, calibrations, or checkpoint selection.
+Keep historical-input reconstruction separate from prospective HEADWATER forecasts. Report split, site set, valid rows and model version with metrics. The same repeatedly inspected test period is exploratory. Actual HEADWATER forecast accuracy and distribution transfer remain unvalidated. Surface-version 2019 statics were chosen for future use and are post-period descriptors in the historical test. Test labels must not refit scalers, calibration or checkpoint selection.

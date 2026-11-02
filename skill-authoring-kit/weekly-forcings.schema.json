@@ -32,12 +32,21 @@
           "const": "mm/week"
         },
         "runoff_definition": {
-          "const": "surface_runoff_plus_baseflow"
+          "enum": [
+            "surface_runoff_plus_baseflow",
+            "surface_runoff_only"
+          ]
         },
         "source_kind": {
           "enum": [
             "historical",
             "forecast"
+          ]
+        },
+        "model_id": {
+          "enum": [
+            "total_runoff",
+            "surface_runoff_static8"
           ]
         }
       }
@@ -51,8 +60,7 @@
           "basin_id",
           "start",
           "precipitation_mm_week",
-          "temperature_mean_c",
-          "total_runoff_mm_week"
+          "temperature_mean_c"
         ],
         "properties": {
           "basin_id": {
@@ -82,10 +90,71 @@
               "null"
             ],
             "minimum": 0
+          },
+          "surface_runoff_mm_week": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
           }
         }
       }
     }
   },
-  "description": "JSON form of the CSV+metadata interface. Runtime also enforces Monday starts, unique site/dates, known head IDs and contiguous finite 13-week windows."
+  "description": "CSV+metadata JSON equivalent for two named checkpoints. Absent model_id is legacy total_runoff; surface requires explicit model_id. Runtime also checks chronology, existing head IDs, physical units and finite contiguous 13-week windows.",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "metadata": {
+            "required": [
+              "model_id"
+            ],
+            "properties": {
+              "model_id": {
+                "const": "surface_runoff_static8"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "properties": {
+              "runoff_definition": {
+                "const": "surface_runoff_only"
+              }
+            }
+          },
+          "rows": {
+            "items": {
+              "required": [
+                "surface_runoff_mm_week"
+              ]
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "metadata": {
+            "properties": {
+              "runoff_definition": {
+                "const": "surface_runoff_plus_baseflow"
+              }
+            }
+          },
+          "rows": {
+            "items": {
+              "required": [
+                "total_runoff_mm_week"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
 }

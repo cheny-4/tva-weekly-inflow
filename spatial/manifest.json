@@ -1,0 +1,11 @@
+{
+  "source": "Exact frozen forcing-region geometries used for the static8 model; shared P/T arrays and masks are identical to the total-runoff model",
+  "boundary_status": "USGS-derived reconstruction, not original TVA GIS; source/proxy groups and all original review flags retained",
+  "region_count": 43,
+  "sites": 52,
+  "crs": "OGC:CRS84 longitude/latitude",
+  "files": {
+    "forcing_regions.geojson": "bdcce371ad4a9d59a0f346b998a2c57195d4bd69c6a78b56fa1642a76cd0e060",
+    "site_region_mapping.csv": "990361094144aee79c755df1b9424277550ddb136ad47780d7a2ebf8d3b82435"
+  }
+}

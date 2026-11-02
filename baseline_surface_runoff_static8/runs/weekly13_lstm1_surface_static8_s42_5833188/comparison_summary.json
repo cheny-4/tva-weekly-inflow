@@ -1,0 +1,32 @@
+{
+  "all51": {
+    "locations": 51,
+    "paired_test_weeks": 15025,
+    "improved_nse_vs_surface": 26,
+    "improved_nse_vs_total": 3,
+    "median_nse_surface": 0.7569858461546357,
+    "median_kge_surface": 0.792442957074564,
+    "median_abs_bias_surface": 10.16471408220937,
+    "median_nse_static8": 0.7472752419234157,
+    "median_kge_static8": 0.7917224697841021,
+    "median_abs_bias_static8": 10.722742368137284,
+    "median_nse_total": 0.8209257062192478,
+    "median_kge_total": 0.830906985711308,
+    "median_abs_bias_total": 7.141298940729346
+  },
+  "headwater10": {
+    "locations": 10,
+    "paired_test_weeks": 3375,
+    "improved_nse_vs_surface": 5,
+    "improved_nse_vs_total": 0,
+    "median_nse_surface": 0.7970495985733776,
+    "median_kge_surface": 0.817868773242318,
+    "median_abs_bias_surface": 7.4627709031341585,
+    "median_nse_static8": 0.8034413423700285,
+    "median_kge_static8": 0.8237526645096932,
+    "median_abs_bias_static8": 9.474677037130597,
+    "median_nse_total": 0.8741981822262809,
+    "median_kge_total": 0.8887923960033592,
+    "median_abs_bias_total": 6.294699092747875
+  }
+}

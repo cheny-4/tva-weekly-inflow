@@ -1,0 +1,36 @@
+{
+  "status": "passed",
+  "fields": {
+    "soil_permeability_native": "permcat",
+    "soil_sand_percent": "sandcat",
+    "soil_clay_percent": "claycat",
+    "depth_to_bedrock_native": "rckdepcat",
+    "depth_to_water_table_native": "wtdepcat",
+    "baseflow_index_percent": "bficat",
+    "impervious_percent_2019_riparian100m": "pctimp2019catrp100",
+    "open_water_percent_2019": "pctow2019cat"
+  },
+  "sites": 52,
+  "source_regions": 43,
+  "local_catchments": 48575,
+  "weighting": "Original ELF forcing-region intersections with NHDPlusV2 local catchments; EPSG5070 intersection area. Finite nonnegative values averaged with valid intersection areas; no value imputation.",
+  "spatial_support": "Catchment-mean soil, groundwater, BFI and open water; impervious metric is within 100m riparian buffers, averaged using catchment intersection areas. This is a basin descriptor, not an exact basin-wide impervious percentage.",
+  "source_polygon_coverage_min": 0.999999994697696,
+  "valid_area_fraction_min": {
+    "soil_permeability_native": 0.9976412196156548,
+    "soil_sand_percent": 0.9976412196156548,
+    "soil_clay_percent": 0.9976412196156548,
+    "depth_to_bedrock_native": 0.9976412196156548,
+    "depth_to_water_table_native": 0.9976412196156548,
+    "baseflow_index_percent": 1.0,
+    "impervious_percent_2019_riparian100m": 0.9983390931275481,
+    "open_water_percent_2019": 1.0
+  },
+  "landcover_vintage": 2019,
+  "vintage_note": "User explicitly requested fixed 2019 land cover for future application. Evaluation in 2010-2016 uses post-period descriptors and is not a strict as-of-date hindcast.",
+  "soil_units": "Source-native units retained for permcat, rckdepcat and wtdepcat; names explicitly avoid unverified conversions. Standardization uses training sites.",
+  "bfi_note": "External static StreamCat bficat raster summary; no ELF-derived hydrologic signature or test target used as input. Does not supply time-varying baseflow.",
+  "scaler_training_sites": 52,
+  "static_scaler_weighting": "one vote per site with eligible training targets",
+  "source_url": "https://www.epa.gov/national-aquatic-resource-surveys/streamcat-dataset"
+}
