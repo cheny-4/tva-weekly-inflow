@@ -1,0 +1,12 @@
+{
+  "scripts/check_setup.py": "99939cdba58913ab9793ea334c211acfe9982a46196e524c9fe32bfcb1bcace4",
+  "scripts/model.py": "649a3275ef2b1da8739769b3721fce1c81b4cc4f022279b06fa33038d0aefd7b",
+  "scripts/prepare_data.py": "be747a48bab1e7886467574bb545fc4d39ba3759ebf8f82ba3196c39c451bdda",
+  "scripts/report.py": "42cab7fe8e4f10a07143b9fcfa1e4a9bef9db58c6142f37a38893f4af6681b35",
+  "scripts/submit_training.py": "9ffdaa565c18106b78dbe5bb836c0938e0313fdec16d0f10adfa658ffcfcac04",
+  "scripts/train.py": "85f4670b75e974e474e91ec6adb9e175bdb7ee0ed9266cce8992169b06c05e49",
+  "scripts/utils.py": "5d5e1a29d4f693c70d57ee40d7d1eb9a22a6641d43ae411a09933a98fdd6f4aa",
+  "scripts/verify.py": "7a498a9f06fa4b898ec22104af8aa0be3d2492c0a9827963a0268bcd7440b29a",
+  "train.slurm": "f7b83a0642eaa4a1c6854139ccf05f8ea06ab1e2509d4f01856aa2a1a2cd994a",
+  "README.txt": "bc5ccc82b91ad1e8e90740fc914cefb4a8fc2ec4e2806c1f907205bf845502f3"
+}

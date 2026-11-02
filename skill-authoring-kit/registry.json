@@ -1,0 +1,94 @@
+{
+  "command_prefix": [
+    "python",
+    "pipeline.py"
+  ],
+  "repository_root_required": true,
+  "artifact_root": "baseline",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "name": "inspect",
+      "argv": [
+        "inspect"
+      ],
+      "side_effect": "read_only",
+      "requires_training_request": false,
+      "requires_slurm_gpu": false,
+      "output_files": []
+    },
+    {
+      "name": "infer",
+      "argv": [
+        "infer",
+        "--inputs",
+        "{inputs_csv}",
+        "--metadata",
+        "{metadata_json}",
+        "--out",
+        "{new_output_directory}"
+      ],
+      "side_effect": "write_new_results",
+      "requires_training_request": false,
+      "requires_slurm_gpu": false,
+      "output_files": [
+        "predictions.csv",
+        "provenance.json"
+      ]
+    },
+    {
+      "name": "replay",
+      "argv": [
+        "replay",
+        "--split",
+        "{validation_or_test}",
+        "--out",
+        "{new_output_directory}"
+      ],
+      "side_effect": "write_new_results",
+      "requires_training_request": false,
+      "requires_slurm_gpu": false,
+      "output_files": [
+        "predictions.csv",
+        "metrics_by_site.csv",
+        "summary.json"
+      ]
+    },
+    {
+      "name": "plot",
+      "argv": [
+        "plot",
+        "--predictions",
+        "{paired_predictions_csv}",
+        "--out",
+        "{new_output_directory}"
+      ],
+      "side_effect": "write_new_figures",
+      "requires_training_request": false,
+      "requires_slurm_gpu": false,
+      "output_files": [
+        "weekly_nse_by_site.png",
+        "ELFxx_weekly.png",
+        "metrics_by_site.csv"
+      ]
+    },
+    {
+      "name": "train",
+      "argv": [
+        "train",
+        "--out",
+        "{new_output_directory}"
+      ],
+      "side_effect": "gpu_training_50_epochs",
+      "requires_training_request": true,
+      "requires_slurm_gpu": true,
+      "output_files": [
+        "best_model.pt",
+        "last_model.pt",
+        "run_config.json",
+        "training_history.csv",
+        "completion.json"
+      ]
+    }
+  ]
+}

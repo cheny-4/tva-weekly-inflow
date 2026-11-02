@@ -1,0 +1,38 @@
+{
+  "status": "passed",
+  "date": "2026-11-02",
+  "python": "3.12.14",
+  "platform": "macOS-26.7.1-arm64-arm-64bit",
+  "torch": "2.10.0",
+  "numpy": "2.5.4",
+  "pandas": "3.1.0",
+  "matplotlib": "3.11.2",
+  "pyyaml": "6.0.3",
+  "unit_tests": 9,
+  "frozen_baseline_files_verified": 52,
+  "model_retrained": false,
+  "skill_frontmatter_validation": "passed",
+  "slurm_shell_syntax": "passed",
+  "csv_example_prediction_rows": 8,
+  "test_replay": {
+    "split": "test",
+    "selected_epoch": 19,
+    "rows": 15025,
+    "scoreable_sites": 51,
+    "median_nse": 0.8209256984400259,
+    "headwater10_median_nse": 0.8741981817701836,
+    "interpretation": "Historical-input reconstruction, not operational forecast validation",
+    "max_saved_replay_difference_mm_day": 1.9073486363652137e-06
+  },
+  "validation_replay": {
+    "split": "validation",
+    "selected_epoch": 19,
+    "rows": 9868,
+    "scoreable_sites": 51,
+    "median_nse": 0.7676433960147186,
+    "headwater10_median_nse": 0.8527721227046694,
+    "interpretation": "Historical-input reconstruction, not operational forecast validation",
+    "max_saved_replay_difference_mm_day": 1.907348634588857e-06
+  },
+  "original_checkpoint_sha256": "a37b068f9ecb6413e7f2a1e36e0b387b07a59b2277cfb693b0093120ca0e449b"
+}

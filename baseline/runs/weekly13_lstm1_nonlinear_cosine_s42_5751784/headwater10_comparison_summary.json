@@ -1,0 +1,11 @@
+{
+  "locations": 10,
+  "paired_test_weeks": 3375,
+  "improved_nse": 6,
+  "median_nse_old": 0.8495006247053314,
+  "median_nse_new": 0.8741981822262809,
+  "median_kge_old": 0.8589405308504782,
+  "median_kge_new": 0.8887923960033592,
+  "median_abs_bias_old": 7.6174264214735,
+  "median_abs_bias_new": 6.294699092747875
+}

@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "source_files_unchanged": true,
+  "original_input_target_masks_splits_and_scalers_byte_identical": true,
+  "history13_eligibility_unchanged": true,
+  "cosine_schedule_verified": true,
+  "epochs_completed": 50,
+  "early_stopping": false,
+  "selected_validation_minimum": 19,
+  "all_test_predictions_cpu_replayed": 15025,
+  "max_replay_difference_mm_day": 2.815307617254348e-06,
+  "parameters": 72884,
+  "site_heads": 52,
+  "gnn_layers": 0,
+  "lstm_layers": 1,
+  "metrics_recomputed": true,
+  "png_count": 16,
+  "pdf_count": 16
+}

@@ -1,0 +1,6 @@
+# Install the platform-appropriate build of this original PyTorch version.
+torch==2.10.0
+numpy>=1.26,<3
+pandas>=2.2,<4
+matplotlib>=3.8,<4
+PyYAML>=6,<7

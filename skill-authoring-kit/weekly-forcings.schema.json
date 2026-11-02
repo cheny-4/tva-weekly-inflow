@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TVA weekly basin forcing interchange",
+  "type": "object",
+  "required": [
+    "metadata",
+    "rows"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": [
+        "calendar",
+        "precipitation_units",
+        "temperature_units",
+        "runoff_units",
+        "runoff_definition",
+        "source_kind"
+      ],
+      "properties": {
+        "calendar": {
+          "const": "Monday-Sunday"
+        },
+        "precipitation_units": {
+          "const": "mm/week"
+        },
+        "temperature_units": {
+          "const": "degC"
+        },
+        "runoff_units": {
+          "const": "mm/week"
+        },
+        "runoff_definition": {
+          "const": "surface_runoff_plus_baseflow"
+        },
+        "source_kind": {
+          "enum": [
+            "historical",
+            "forecast"
+          ]
+        }
+      }
+    },
+    "rows": {
+      "type": "array",
+      "minItems": 13,
+      "items": {
+        "type": "object",
+        "required": [
+          "basin_id",
+          "start",
+          "precipitation_mm_week",
+          "temperature_mean_c",
+          "total_runoff_mm_week"
+        ],
+        "properties": {
+          "basin_id": {
+            "type": "string",
+            "pattern": "^ELF(0[1-9]|[1-4][0-9]|5[0-2])$"
+          },
+          "start": {
+            "type": "string",
+            "format": "date"
+          },
+          "precipitation_mm_week": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "temperature_mean_c": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "total_runoff_mm_week": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          }
+        }
+      }
+    }
+  },
+  "description": "JSON form of the CSV+metadata interface. Runtime also enforces Monday starts, unique site/dates, known head IDs and contiguous finite 13-week windows."
+}

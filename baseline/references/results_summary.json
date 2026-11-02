@@ -1,0 +1,130 @@
+{
+  "status": "completed",
+  "best_epoch": 23,
+  "epochs_run": 31,
+  "best_validation_loss": 0.07429170608520508,
+  "stop_reason": "early_stopping",
+  "training_validation_seconds": 18.73773573897779,
+  "summary": [
+    {
+      "scope": "all_scoreable_sites",
+      "split": "test",
+      "model": "all52_lstm_gnn_site_heads",
+      "locations": 51,
+      "weeks": 15025,
+      "median_nse": 0.8262430167211232,
+      "median_kge": 0.8169783414795173,
+      "median_absolute_pbias_percent": 7.67731827689766
+    },
+    {
+      "scope": "all_scoreable_sites",
+      "split": "test",
+      "model": "lstm_1layer_52sites",
+      "locations": 51,
+      "weeks": 15025,
+      "median_nse": 0.8227001508344653,
+      "median_kge": 0.8174327276329834,
+      "median_absolute_pbias_percent": 8.349822786855853
+    },
+    {
+      "scope": "all_scoreable_sites",
+      "split": "test",
+      "model": "training_climatology",
+      "locations": 51,
+      "weeks": 15025,
+      "median_nse": 0.19631644252098646,
+      "median_kge": 0.23676446829359044,
+      "median_absolute_pbias_percent": 9.748041700190168
+    },
+    {
+      "scope": "all_scoreable_sites",
+      "split": "validation",
+      "model": "all52_lstm_gnn_site_heads",
+      "locations": 51,
+      "weeks": 9868,
+      "median_nse": 0.7734245390491807,
+      "median_kge": 0.7838354739721731,
+      "median_absolute_pbias_percent": 9.403256287740614
+    },
+    {
+      "scope": "all_scoreable_sites",
+      "split": "validation",
+      "model": "lstm_1layer_52sites",
+      "locations": 51,
+      "weeks": 9868,
+      "median_nse": 0.7885495668951675,
+      "median_kge": 0.7908894528697732,
+      "median_absolute_pbias_percent": 9.026329161989132
+    },
+    {
+      "scope": "all_scoreable_sites",
+      "split": "validation",
+      "model": "training_climatology",
+      "locations": 51,
+      "weeks": 9868,
+      "median_nse": -0.2075323572936114,
+      "median_kge": 0.063085402811623,
+      "median_absolute_pbias_percent": 43.30543751969442
+    },
+    {
+      "scope": "priority_headwater10",
+      "split": "test",
+      "model": "all52_lstm_gnn_site_heads",
+      "locations": 10,
+      "weeks": 3375,
+      "median_nse": 0.8633275126031532,
+      "median_kge": 0.8593531401118355,
+      "median_absolute_pbias_percent": 7.21799325696127
+    },
+    {
+      "scope": "priority_headwater10",
+      "split": "test",
+      "model": "lstm_1layer_52sites",
+      "locations": 10,
+      "weeks": 3375,
+      "median_nse": 0.8495006247053314,
+      "median_kge": 0.8589405308504782,
+      "median_absolute_pbias_percent": 7.6174264214735
+    },
+    {
+      "scope": "priority_headwater10",
+      "split": "test",
+      "model": "training_climatology",
+      "locations": 10,
+      "weeks": 3375,
+      "median_nse": 0.22958912334678877,
+      "median_kge": 0.2875877709925267,
+      "median_absolute_pbias_percent": 2.3401118960020506
+    },
+    {
+      "scope": "priority_headwater10",
+      "split": "validation",
+      "model": "all52_lstm_gnn_site_heads",
+      "locations": 10,
+      "weeks": 2297,
+      "median_nse": 0.8558762947787293,
+      "median_kge": 0.8650161560059395,
+      "median_absolute_pbias_percent": 5.4724499420320765
+    },
+    {
+      "scope": "priority_headwater10",
+      "split": "validation",
+      "model": "lstm_1layer_52sites",
+      "locations": 10,
+      "weeks": 2297,
+      "median_nse": 0.8508972578801328,
+      "median_kge": 0.8760611345677125,
+      "median_absolute_pbias_percent": 3.767155583995746
+    },
+    {
+      "scope": "priority_headwater10",
+      "split": "validation",
+      "model": "training_climatology",
+      "locations": 10,
+      "weeks": 2297,
+      "median_nse": -0.08553954490364446,
+      "median_kge": 0.19273520124989874,
+      "median_absolute_pbias_percent": 24.937249449083943
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "status": "completed",
+  "run": "/lustre/orion/lrn105/proj-shared/yangc/tva_elf_headwater_final/lstm_1layer_52site_nonlinear_heads_weekly_cosine/runs/weekly13_lstm1_nonlinear_cosine_s42_5751784",
+  "job_id": "5751784",
+  "best_epoch": 19,
+  "layers": 1,
+  "history": 13,
+  "early_stopping": false,
+  "epochs_run": 50
+}

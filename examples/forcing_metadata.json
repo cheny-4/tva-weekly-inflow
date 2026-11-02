@@ -1,0 +1,9 @@
+{
+  "calendar": "Monday-Sunday",
+  "precipitation_units": "mm/week",
+  "temperature_units": "degC",
+  "runoff_units": "mm/week",
+  "runoff_definition": "surface_runoff_plus_baseflow",
+  "source_kind": "historical",
+  "source": "Frozen baseline physical-unit inputs for Norris and Normandy; no ELF targets in this example"
+}
